@@ -1,0 +1,280 @@
+//Title: Main.c
+//Author: David Ayodele
+//Date: 10/14/16
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <stdbool.h>
+#include <string.h>
+
+#include "defns.h"
+
+//typedef int (*Compare)(const char *, const char *); // Performs string comparisons
+int numBooks = 0;
+struct BST *bst;
+//struct BookInfo books[numBooks];
+struct Genre *bookGenre;
+struct Format *bookFormats;
+
+bool TestForPrime( int val )  // Given prime tester
+{
+    int limit, factor = 2;
+
+    limit = (long)( sqrtf( (float) val ) + 0.5f );
+    while( (factor <= limit) && (val % factor) )
+        factor++;
+
+    return( factor > limit );
+}
+
+void bookInsert(struct BST *bookNode, char *title)
+{
+    int result;
+    if (bookNode == NULL)
+    {
+        bookNode = malloc(sizeof(struct BST));
+        strcpy(bookNode->book.title, title);
+        bookNode->left = NULL;
+        bookNode->right = NULL;
+    }
+    else
+    {
+        if(bookNode != NULL && strcmp(bookNode->book.title, title) < 0)
+        {
+            //bookNode->left = malloc(sizeof(struct BST));  // memory for new bookNode
+            //bookNode->left = malloc(sizeof(struct BST));  // memory for new bookNode
+            bookInsert(bookNode->left, bookNode->book.title);
+        }
+        else if(bookNode != NULL && strcmp(bookNode->book.title, title) > 0)
+        {
+            //bookNode->right->book = malloc(sizeof(struct BookInfo)); // memory for new book
+            //bookNode->left->book = malloc(sizeof(struct BookInfo)); // memory for new book
+            // bookNode->right = malloc(sizeof(struct BST)); // memory for new bookNode
+            //result = strcmp(bookNode->book.title, title);
+            bookInsert(bookNode->right, bookNode->book.title);
+        }
+    }
+}
+
+void listInOrder(char genreName[])
+{
+    printf("list-In-order: %s\n", bookGenre->genre);
+    printf("Genre Name: %s\n", genreName);
+    if (strcmp(genreName, bookGenre->genre) == 0)
+    {
+        treeInOrder(bookGenre->root);
+    }
+    else
+    {
+        printf("Genre not carried\n");
+    }
+}
+
+void treeInOrder(struct BST *b) /*see declaration of TNode below*/
+{
+     if (b != NULL)
+     {
+         printf("%s\n", b->book.title);
+     }
+
+     if(b == 0)
+     {
+         return;
+     }
+     treeInOrder(b->left);
+     printf("%s%s%s\n", b->book.title, b->book.author, b->book.publisher);
+     treeInOrder(b->right);
+}
+//int compareStrings(const char *a, const char *b) // Compares new node w/ previous
+//{
+//    return (strcmp(a, b));  // Uses string comparison rather than pointers
+//}
+
+//char *input( void )
+//{
+//    static char line[200];       // where to place item
+//    printf("Please enter a title : ");
+//    fgets( line, sizeof line, stdin );
+//    return ( strtok(line, "\n" ));    // removes trailing newline
+//}
+
+//recursive function to print out the tree inorder
+//void in_order(struct BST *node)
+//{
+//    if( node != NULL )
+//    {
+//        in_order(node->left);
+//        printf("%s\n", node->left);     // string type
+//        in_order(node->right);
+//    }
+//}
+
+int main(int argc, char *argv[])
+{
+    FILE *filePointer;   // For testing input
+    filePointer = fopen("tiny-input.txt","r");  // *** delete For testing input
+    char firstLine[5];
+    char buffer[50];
+    char fileLine[50];
+
+    int numGenres = 0;
+    int numTitles = 0;
+    int numFormats = 0;
+    int numCopies = 0;
+    int numQueries = 0;
+    double bookPrice = 0;
+
+    bookGenre = malloc(sizeof(struct Genre));
+    bookGenre->root = malloc(sizeof(struct BST));
+//    bookGenre->root->left = malloc(sizeof(struct BookInfo));    // May be uneccessary
+//    bookGenre->root->right = malloc(sizeof(struct BookInfo));   // May be uneccessary
+//    bookGenre->root->left = malloc(sizeof(struct BST));
+//    bookGenre->root->right = malloc(sizeof(struct BST));
+    bookGenre->root->left = NULL;
+    bookGenre->root->right = NULL;
+    //bookGenre->root->bookInfo->formats[0].format = malloc(sizeof(struct Format));
+    //struct Format formats[NO_FORMATS];
+    //bookGenre->root->bookInfo->formats = malloc(sizeof(struct Format));
+    //bookEntry = malloc(sizeof(struct BookInfo));
+    fgets(firstLine, sizeof(firstLine), filePointer); // ***Modify filePointer to stdin
+    numGenres = atoi(firstLine);
+    printf("numGenres = %i, %i\n", numGenres, sizeof(fileLine));
+
+    char genres[numGenres][50];
+    struct Genre genreArray[2][numGenres];
+
+    int i = 0;
+    int j = 0;
+    int k = 0;
+    for (i = 0; i < numGenres; i++)
+    {
+//        genreArray[i] = malloc(sizeof(struct Genre));
+//        genreArray[i]->root = malloc(sizeof(struct BST));
+        genreArray[1][i].root = malloc(sizeof(struct BST));
+        genreArray[1][i].root->left = malloc(sizeof(struct BST));
+        genreArray[1][i].root->right = malloc(sizeof(struct BST));
+//        genreArray[1][i].root->book->forms = malloc(sizeof(struct Format));
+
+        fgets(fileLine, sizeof(fileLine), filePointer);  // *** Modify filePointer to stdin
+        strcpy(bookGenre->genre, fileLine);
+        printf(bookGenre->genre);
+        strcpy(genres[i],fileLine);
+        printf("Genre New = %s", genres[i]);
+    }
+    fgets(fileLine, sizeof(fileLine), filePointer);
+    numTitles = atoi(fileLine);
+    printf("numTitles = %i\n", numTitles);  //*** will not allow numTitles
+    struct BookInfo books[numTitles];
+    printf("-------------BST--------------\n");
+    for (i = 0; i < numTitles; i++)
+    {
+        fgets(fileLine, sizeof(fileLine), filePointer);  // *** Modify filePointer to stdin
+        for (j = 0; j < numGenres; j++)
+        {
+            if (strcmp(fileLine, genres[j]) == 0)
+            {
+                strcpy(bookGenre->genre, fileLine);
+                strcpy(genreArray[0][j].genre, bookGenre->genre);
+                strcpy(genreArray[1][j].root, bookGenre->root);
+                printf("genreArray[0][j].genre = %s", genreArray[0][j].genre);
+
+                fgets(fileLine, sizeof(fileLine), filePointer);  // *** Modify filePointer to stdin
+                strcpy(genreArray[1][j].root->book.title, fileLine);
+                bookInsert(genreArray[1][j].root, fileLine);   // Call bookInsert function to insert
+                /*if (strcmp(fileLine,bookEntry->title) < 0)
+                {
+                    strcpy(genreArray[1][j].root->left, .title, fileLine);
+                }
+                else
+                {
+                    strcpy(genreArray[1][j].root->bookInfo->title, fileLine);
+                }*/
+                fgets(fileLine, sizeof(fileLine), filePointer);  // *** Modify filePointer to stdin
+                strcpy(genreArray[1][j].root->book.author, fileLine);
+                fgets(fileLine, sizeof(fileLine), filePointer);  // *** Modify filePointer to stdin
+                strcpy(genreArray[1][j].root->book.publisher, fileLine);
+                printf("genreArray[1][j].root->book.publisher = %s", genreArray[1][j].root->book.publisher);
+                fgets(fileLine, sizeof(fileLine), filePointer);  // *** Modify filePointer to stdin
+                numFormats = atoi(fileLine);
+                for (k = 0; k < numFormats; k++)
+                {
+                    fgets(fileLine, sizeof(fileLine), filePointer);  // *** Modify filePointer to stdin
+                    strcpy(genreArray[1][j].root->book.forms[k].format, fileLine);
+                    fgets(fileLine, sizeof(fileLine), filePointer);  // *** Modify filePointer to stdin
+                    bookPrice = atof(fileLine);
+                    genreArray[1][j].root->book.forms[k].price = atof(fileLine);
+                    fgets(fileLine, sizeof(fileLine), filePointer);  // *** Modify filePointer to stdin
+                    numCopies = atoi(fileLine);
+                    genreArray[1][j].root->book.forms[k].quantity = atoi(fileLine);
+                }
+            }
+        }
+
+        printf("%s%s%s%s%i\n%s%.2f\n%i\n", bookGenre->genre, genreArray[1][0].root->book.title, genreArray[1][0].root->book.author, genreArray[1][0].root->book.publisher, numFormats, genreArray[1][0].root->book.forms[1].format, genreArray[1][0].root->book.forms[1].price, genreArray[1][0].root->book.forms[1].quantity);
+    }
+// ============================ BST Filled ========================//
+
+//    for (j = 0; j < numGenres; j++)
+//    {
+//        if(strcpy(genres[j], ))
+//    }
+    fgets(fileLine, sizeof(fileLine), filePointer);  // *** Modify filePointer to stdin
+    numQueries = atoi(fileLine);
+    printf("Number of Queries = %i\n", numQueries);
+    char *s1;
+    char *s2;
+    char *s3;
+    char *s4;
+    i = 0;
+    for (i = 0; i < numQueries; i++)
+    {
+        fgets(fileLine, sizeof(fileLine), filePointer);  // *** Modify filePointer to stdin
+        //printf("Query = %.4s\n", &fileLine[5]);
+        s1 = strtok(fileLine, " ");
+        s2 = strtok(NULL, " ");
+//        if(fileLine[strlen(fileLine)-1] == '\n')
+//        {
+//            fileLine[strlen(fileLine)-1] = '\0';
+//        }
+//        s3 = strtok(fileLine, "\"| ");
+        s3 = strtok(NULL, "\"");
+        printf("s1 = %s, s2 = %s, s3 = %s\n\n", s1, s2, s3);
+        for (k = 0; k < numGenres; k++)
+        {
+            if (strcmp(s2, "book") == 0)
+            {
+                //printf("Book Title = %.18s\n", &fileLine[11]);
+                printf("Book Title = %s\n", s3);
+                printf("Genres = %s\n", genres[k]);
+            }
+            else if(strcmp(s2, "genre") == 0)
+            {
+                printf("Book Genre = %s\n", genres[k]);
+                listInOrder(genres[k]);
+            }
+        }
+    }
+
+//    while (!feof(filePointer)) // *** Modify filePointer to stdin
+//    {
+//        fgets(fileLine, sizeof(fileLine), filePointer); // ***Modify filePointer to stdin)
+//        numGenres = fileLine;
+//
+//        if (fileLine
+//        printf(fileLine);
+//    }
+    fclose(filePointer);  // *** delete  For testing input
+
+//    struct BST *node = NULL;  // Declares empty BST node
+//    struct Genre *drama = NULL;  // Declares empty genre
+
+//    bookInsert(drama, node, "Drama", "King", "IT", (Compare)compareStrings);
+//    bookInsert(drama, node, "Drama", "Hamilton", "Buffy", (Compare)compareStrings);
+//    in_order(node);
+    //string query;
+
+
+//    printf("%s \n", genres[0]); // ***Modify to
+    return 0;
+}
